@@ -25,7 +25,8 @@ from django.utils.safestring import mark_safe
 from markdown import markdown
 from markdown.extensions import Extension
 
-import pinax.teams.models
+if settings.HELPDESK_TEAMS:
+    import pinax.teams.models
 
 
 import uuid
@@ -1309,13 +1310,16 @@ class KBItem(models.Model):
         blank=True,
     )
 
-    team = models.ForeignKey(
-        pinax.teams.models.Team,
-        on_delete=models.CASCADE,
-        verbose_name=_('Team'),
-        blank=True,
-        null=True,
-    )
+    if settings.HELPDESK_TEAMS:
+        team = models.ForeignKey(
+            pinax.teams.models.Team,
+            on_delete=models.CASCADE,
+            verbose_name=_('Team'),
+            blank=True,
+            null=True,
+        )
+    else:
+        team = models.CharField(max_length=30, blank=True, null=True)
 
     order = models.PositiveIntegerField(
         _('Order'),

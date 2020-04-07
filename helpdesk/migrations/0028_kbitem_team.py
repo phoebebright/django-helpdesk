@@ -2,19 +2,36 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
 
+
     dependencies = [
-        ('pinax_teams', '0004_auto_20170511_0856'),
+
         ('helpdesk', '0027_auto_20200107_1221'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='kbitem',
-            name='team',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='pinax_teams.Team', verbose_name='Team'),
-        ),
-    ]
+    if settings.HELPDESK_TEAMS:
+        dependancies.append(('pinax_teams', '0004_auto_20170511_0856'))
+
+
+        operations = [
+            migrations.AddField(
+                model_name='kbitem',
+                name='team',
+                field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='pinax_teams.Team', verbose_name='Team'),
+            ),
+        ]
+
+    else:
+        operations = [
+            migrations.AddField(
+                model_name='kbitem',
+                name='team',
+                field=models.CharField(max_length=30, blank=True, null=True, ),
+            ),
+        ]
+
+
