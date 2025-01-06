@@ -258,19 +258,20 @@ def update_ticket(
     if comment:
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=comment,
                      time_spent=time_spent, message_id=message_id, title=title)
+        if is_helpdesk_staff(user):
+            f.user = user
     if private_comment:
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=private_comment, public=False,
                      time_spent=time_spent, message_id=message_id, title=title)
+        if is_helpdesk_staff(user):
+            f.user = user
         f.save()
     if public_comment:
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=public_comment, public=True,
                      time_spent=time_spent, message_id=message_id, title=title)
+        if is_helpdesk_staff(user):
+            f.user = user
         f.save()
-
-    if is_helpdesk_staff(user):
-        f.user = user
-
-    f.public = public
 
     reassigned = False
 

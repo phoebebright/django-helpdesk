@@ -258,6 +258,21 @@ Best wishes,
 
     <script type='text/javascript' language='javascript'>
         $(document).ready(function() {
+
+
+        const $textarea = $('#public_comment');
+        const initialContent = $textarea.val().trim(); // Store the initial content
+
+        // On form submit, check if the content has been modified
+        $textarea.closest('form').on('submit', function () {
+            const currentContent = $textarea.val().trim();
+            if (currentContent === initialContent) {
+                // If unchanged, remove the name attribute to exclude from submission
+                $textarea.removeAttr('name');
+            }
+        });
+
+
             $("#ShowFurtherEditOptions").click(function() {
                 $("#FurtherEditOptions").toggle();
             });
