@@ -10,6 +10,7 @@ urls.py - Mapping of URL's to our various views. Note we always used NAMED
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.urls import include, path, re_path
+from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 from helpdesk import settings as helpdesk_settings
 from helpdesk.decorators import helpdesk_staff_member_required, protect_view
@@ -47,11 +48,11 @@ app_name = "helpdesk"
 base64_pattern = r"(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
 
 urlpatterns = [
-    path("dashboard/", staff.dashboard, name="dashboard"),
-    path("tickets/", staff.ticket_list, name="list"),
-    path("tickets/update/", staff.mass_update, name="mass_update"),
+    path("dashboard/", never_cache(staff.dashboard), name="dashboard"),
+    path("tickets/", never_cache(staff.ticket_list), name="list"),
+    path("tickets/update/", never_cache(staff.mass_update), name="mass_update"),
     path("tickets/merge", staff.merge_tickets, name="merge_tickets"),
-    path("tickets/<int:ticket_id>/", staff.view_ticket, name="view"),
+    path("tickets/<int:ticket_id>/", never_cache(staff.view_ticket), name="view"),
     path(
         "tickets/<int:ticket_id>/followup_edit/<int:followup_id>/",
         staff.followup_edit,
@@ -62,9 +63,9 @@ urlpatterns = [
         staff.followup_delete,
         name="followup_delete",
     ),
-    path("tickets/<int:ticket_id>/edit/", staff.edit_ticket, name="edit"),
+    path("tickets/<int:ticket_id>/edit/", never_cache(staff.edit_ticket), name="edit"),
     path("tickets/<int:ticket_id>/update/",
-         staff.update_ticket_view, name="update"),
+         never_cache(staff.update_ticket_view), name="update"),
     path("tickets/<int:ticket_id>/delete/",
          staff.delete_ticket, name="delete"),
     path("tickets/<int:ticket_id>/hold/", staff.hold_ticket, name="hold"),
