@@ -108,8 +108,13 @@
 
 {% user_from_submitter ticket.submitter_email as submitter_user  %}
 {% get_django_setting "HELPDESK_SIGNATURE" as helpdesk_signature %}
-                            <dt><label for='commentBox'>{% trans "Comment / Resolution" %}</label></dt>
-                            <dd><textarea rows='12' cols='100' name='comment' id='commentBox'>{% if submitter_user %}Hi {{ submitter_user.first_name }},{% endif %}
+                        
+                  
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6">
+                                
+                                <label for='public_commentBox'>{% trans "Message for User" %}</label>
+                          <textarea rows='12' cols='100' name='public_comment' id='public_commentBox'>{% if submitter_user %}Hi {{ submitter_user.first_name }},{% endif %}
 
 
 
@@ -118,10 +123,14 @@
 Best wishes,
 
 {{ user.first_name }}
-{{ helpdesk_signature}}</textarea></dd>
-
-                            <dt><label>{% trans "New Status" %}</label></dt>
-  
+{{ helpdesk_signature}}</textarea>
+                                    </div>
+                                 <div class="col-sm-12 col-md-6">
+               
+                                <label for='private_commentBox'>{% trans "Comment for Ticket" %}</label>
+                          <textarea rows='12' cols='100' name='private_commentBox' id='private_commentBox'></textarea>
+                                 </div>
+                                </div>
 
                             <dd class='form_help_text'>{% trans "You can insert ticket and queue details in your message. For more information, see the <a href='../../help/context/'>context help page</a>." %}</dd>
 
@@ -270,37 +279,13 @@ Best wishes,
 
                     <button class="btn btn-primary float-right" type='submit'>{% trans "Update This Ticket" %}</button>
 
-                    {% csrf_token %}</form>
+                    {% csrf_token %}
+                </form>
 
             </div>
         </div>
 
-        <div class="modal fade" id="createChecklistModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="modal-header">
-                            <h5 class="modal-title">{% trans "Add a new checklist" %}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="{% trans 'Close' %}">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>{% trans "You can select a template to generate a checklist with a predefined set of tasks." %}</p>
-                            <p>{% trans "Ignore it and only give a name to create an empty checklist." %}</p>
-                            {{ checklist_form.as_p }}
-                        </div>
-                        <div class="modal-footer">
-                            <a class="btn btn-secondary" href="{% url 'helpdesk:checklist_templates' %}">
-                                {% trans "Manage templates" %}
-                            </a>
-                            <button type="submit" class="btn btn-primary">{% trans "Add" %}</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+
     {% endif %}
 {% endblock %}
 
