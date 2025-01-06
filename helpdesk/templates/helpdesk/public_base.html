@@ -1,50 +1,43 @@
-{% load i18n %}
-{% load static %}
+{% extends "base.html" %}
 {% load load_helpdesk_settings %}
 {% with request|load_helpdesk_settings as helpdesk_settings %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+    {% block extra_head %}
+        {% include 'helpdesk/base-head.html' %}
+        {% block helpdesk_head %}{% endblock %}
+    {% endblock %}
 
-    {% include 'helpdesk/base-head.html' %}
-    {% block helpdesk_head %}{% endblock %}
-    {% include 'helpdesk/base_js.html' %}
+    {% block outer %}
+{#        {% include "helpdesk/navigation-header.html" %}#}
 
-</head>
+        <div id="wrapper">
+            {% include "helpdesk/navigation-sidebar.html" %}
 
-<body id="bg-dark">
+            <div id="content-wrapper">
 
-    {% include "helpdesk/navigation-header.html" %}
+                <div class="container-fluid">
 
-    <div id="wrapper">
-        {% include "helpdesk/navigation-sidebar.html" %}
+                    <!-- Breadcrumbs-->
+                    <ol class="breadcrumb">
+                        {% block helpdesk_breadcrumb %}{% endblock %}
+                    </ol>
 
-        <div id="content-wrapper">
+                    {% block helpdesk_body %}{% endblock %}
 
-            <div class="container-fluid">
+                </div>
+                <!-- /.container-fluid -->
 
-                <!-- Breadcrumbs-->
-                <ol class="breadcrumb">
-                    {% block helpdesk_breadcrumb %}{% endblock %}
-                </ol>
-
-                {% block helpdesk_body %}{% endblock %}
-
+                {% include "helpdesk/attribution.html" %}
             </div>
-            <!-- /.container-fluid -->
+            <!-- /.content-wrapper -->
 
-            {% include "helpdesk/attribution.html" %}
         </div>
-        <!-- /.content-wrapper -->
+        <!-- /#wrapper -->
 
-    </div>
-    <!-- /#wrapper -->
+        {% include "helpdesk/debug.html" %}
 
-    {% include "helpdesk/debug.html" %}
-
-    {% include 'helpdesk/base_js.html' %}
+        {% include 'helpdesk/base_js.html' %}
+    {% endblock %}
     {% block helpdesk_js %}{% endblock %}
-</body>
-</html>
+
 {% endwith %}

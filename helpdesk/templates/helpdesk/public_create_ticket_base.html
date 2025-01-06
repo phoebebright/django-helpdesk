@@ -1,5 +1,8 @@
-{% load i18n bootstrap4form %}
+{% load i18n  %}
 {% load load_helpdesk_settings %}
+{% load bootstrap5 %}
+{% load eventtags %}
+
 
 {% with request|load_helpdesk_settings as helpdesk_settings %}
     {% if helpdesk_settings.HELPDESK_SUBMIT_A_TICKET_PUBLIC %}
@@ -13,7 +16,70 @@
         {% endif %}
         <form role="form" method='post' enctype='multipart/form-data'>
             {% csrf_token %}
-            {{ form|bootstrap4form }}
+
+
+
+
+{% bootstrap_field form.title %}
+{% bootstrap_field form.body %}
+
+
+
+
+
+
+
+
+
+
+<div class="form-group">
+
+
+            <label class=" " for="id_attachment">Attach File</label>
+
+
+        <div class=" ">
+            <input type="file" name="attachment" class="form-control-file" id="id_attachment">
+
+
+
+
+                <small class="form-text text-muted">You can attach a file to this ticket. Only file types such as plain text (.txt), a document (.pdf, .docx, or .odt), or screenshot (.png or .jpg) may be uploaded.</small>
+
+        </div>
+
+</div>
+
+
+{% if user %}
+   <input type="hidden" name="submitter_email" value="{{ user.email }}" id="id_submitter_email">
+
+{% else %}
+<div class="form-group">
+
+
+            <label class=" " for="id_submitter_email">Your E-Mail Address</label>
+
+
+        <div class=" ">
+            <input type="email" name="submitter_email" class="form-control form-control" required="" id="id_submitter_email">
+
+
+
+
+                <small class="form-text text-muted">We will e-mail you when your ticket is updated.</small>
+
+        </div>
+
+</div>
+{% endif %}
+
+
+
+
+
+
+
             <button type="submit" class="btn btn-primary btn-lg btn-block">
                 {% trans "Submit Ticket" %} <i class="fa fa-paper-plane"></i>
             </button>

@@ -28,5 +28,14 @@
 <!-- Custom Theme JavaScript -->
 <script src="{% static 'helpdesk/js/sb-admin.js' %}"></script>
 
+{% if user.is_administrator %}
+    {% if not USE_ASSETS %}
+    <script src="{% static "js/administrator.js" %}"></script>
+
+    {% else %}
+    <script src="{% static "js/administrator.js" %}"></script>
+    {% endif %}
+{% endif %}
+
 {% block js_bottom %}
 {% endblock %}

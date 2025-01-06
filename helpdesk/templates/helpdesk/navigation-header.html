@@ -47,23 +47,7 @@
             {{ user.get_full_name|default:user.get_username }}
             <i class="fas fa-caret-down fa-fw"></i>
           </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-            <a class="dropdown-item" href="{% url 'helpdesk:user_settings' %}"><i class="fas fa-fw fa-user-cog"></i> {% trans "User Settings" %}</a>
-            <a class="dropdown-item" href='{% url 'helpdesk:rss_index' %}'><i class="fas fa-fw fa-rss-square"></i> {% trans "RSS Feeds" %}</a>
-            {% if helpdesk_settings.HELPDESK_SHOW_CHANGE_PASSWORD and user.has_usable_password %}
-            <a class="dropdown-item" href="{% url 'helpdesk:password_change' %}"><i class="fas fa-fw fa-user-secret"></i> {% trans "Change password" %}</a>
-            {% endif %}
-            <div class="dropdown-divider"></div>
-            {% if user.is_superuser %}
-            <a class="dropdown-item" href='{% url 'helpdesk:system_settings' %}'><i class="fas fa-fw fa-cogs"></i> {% trans "System Settings" %}</a>
-            <div class="dropdown-divider"></div>
-            {% endif %}
-            <form action="{% url 'helpdesk:logout' %}" method="post">{% csrf_token %}
-                <button type="submit" class="dropdown-item">
-                  <i class="fas fa-fw fa-sign-out-alt"></i> {% trans "Logout" %}
-                </button>
-            </form>
-          </div>
+
         </li>
       {% else %}
         {% if helpdesk_settings.HELPDESK_ALLOW_NON_STAFF_TICKET_UPDATE %}
@@ -84,17 +68,11 @@
                      {{user.username}}
                  </div>
             </div>
-            <li class="nav-item">
+            <li class="nav-item dropdown no-arrow">
               {% if user.is_authenticated %}
-                <form action="{% url 'helpdesk:logout' %}" method="post">{% csrf_token %}
-                    <button type="submit" class="btn btn-outline-secondary">
-                      <i class="fas fa-fw fa-sign-out-alt"></i> {% trans "Logout" %}
-                    </button>
-                </form>
+                <a class="nav-link dropdown-toggle" href="{% url 'helpdesk:logout' %}" id="userDropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fw fa-sign-out-alt"></i> {% trans "Logout" %}</a>
               {% else %}
-                <a class="btn btn-outline-secondary" href="{% url 'helpdesk:login' %}?next={% if next %}{{ next|escape }}{% else %}{% url 'helpdesk:home' %}{% endif %}">
-                  <i class="fas fa-fw fa-sign-in-alt"></i> {% trans "Log In" %}
-                </a>
+                <a class="nav-link dropdown-toggle" href="{% url 'helpdesk:login' %}?next={% if next %}{{ next|escape }}{% else %}{% url 'helpdesk:home' %}{% endif %}" id="userDropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fw fa-sign-in-alt"></i> {% trans "Log In" %}</a>
               {% endif %}
             </li>
         {% endif %}

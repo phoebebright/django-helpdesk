@@ -1,95 +1,100 @@
-{% load i18n helpdesk_staff %}
+{% load i18n helpdesk_staff tz %}
 
-    <!-- Sidebar -->
-    <ul class="sidebar navbar-nav">
+<!-- Sidebar -->
+<ul class="sidebar navbar-nav">
     {% if helpdesk_settings.HELPDESK_NAVIGATION_ENABLED and user.is_authenticated or user|is_helpdesk_staff %}
-        <li class="nav-item{% if 'dashboard' in request.path %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:dashboard' %}">
+        <li class="nav-item">
+            <a class="nav-link" href="/">
+                <i class="fas fa-fw fa-home"></i>
+                <span>{{SITE_NAME}}</span>
+            </a>
+        </li> <li class="nav-item{% if 'dashboard' in request.path %} active{% endif %}">
+        <a class="nav-link" href="{% url 'helpdesk:dashboard' %}?x={% now "His" %}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>{% trans "Dashboard" %}</span>
-          </a>
-        </li>
+        </a>
+    </li>
         <li class="nav-item{% if 'tickets' in request.path and 'submit' not in request.path %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:list' %}">
-            <i class="fas fa-fw fa-tasks"></i>
-            <span>{% trans "All Tickets" %}</span>
-          </a>
+            <a class="nav-link" href="{% url 'helpdesk:list' %}">
+                <i class="fas fa-fw fa-tasks"></i>
+                <span>{% trans "All Tickets" %}</span>
+            </a>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="ticketsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-fw fa-search"></i>
-            <span>{% trans "Saved Queries" %}</span>
-          </a>
-          <div class="dropdown-menu" aria-labelledby="ticketsDropdown">
-            {% if user_saved_queries_ %}
-            {% for q in user_saved_queries_ %}
-            <a class="dropdown-item small" href="{% url 'helpdesk:list' %}?saved_query={{ q.id }}">{{ q.title }}
-                {% if q.shared %}
-                (Shared{% if user != q.user %} by {{ q.user.get_username }}{% endif %})
-                {% endif %}
+            <a class="nav-link dropdown-toggle" href="#" id="ticketsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-fw fa-search"></i>
+                <span>{% trans "Saved Queries" %}</span>
             </a>
-            {% endfor %}
-            {% else %}
-            <p class="dropdown-item small text-wrap">{% trans "No saved queries currently available. You can create one in the All Tickets page." %}</p>
-            {% endif %}
-          </div>
+            <div class="dropdown-menu" aria-labelledby="ticketsDropdown">
+                {% if user_saved_queries_ %}
+                    {% for q in user_saved_queries_ %}
+                        <a class="dropdown-item small" href="{% url 'helpdesk:list' %}?saved_query={{ q.id }}">{{ q.title }}
+                            {% if q.shared %}
+                                (Shared{% if user != q.user %} by {{ q.user.get_username }}{% endif %})
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p class="dropdown-item small text-wrap">{% trans "No saved queries currently available. You can create one in the All Tickets page." %}</p>
+                {% endif %}
+            </div>
         </li>
         <li class="nav-item{% if 'submit' in request.path %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:submit' %}">
-            <i class="fas fa-fw fa-plus-circle"></i>
-            <span>{% trans "New Ticket" %}</span>
-          </a>
-        </li>
-        <li class="nav-item{% if 'my-tickets' in request.path %} active{% endif %}">
-            <a class="nav-link" href="{% url 'helpdesk:my-tickets' %}">
-                <i class="fas fa-fw fa-tasks"></i>
-                <span>{% trans "My Tickets" %}</span>
+            <a class="nav-link" href="{% url 'helpdesk:submit' %}">
+                <i class="fas fa-fw fa-plus-circle"></i>
+                <span>{% trans "New Ticket" %}</span>
             </a>
         </li>
         <li class="nav-item{% if 'reports' in request.path %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:report_index' %}">
-            <i class="fas fa-fw fa-chart-area"></i>
-            <span>{% trans "Reports" %}</span>
-          </a>
-        </li>
-        {% if helpdesk_settings.HELPDESK_KB_ENABLED %}
-        <li class="nav-item{% if 'kb' in request.path %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:kb_index' %}">
-            <i class="fas fa-fw fa-database"></i>
-            <span>{% trans "Knowledgebase" %}</span>
-          </a>
-        </li>
-        {% endif %}
-    {% else %}
-        {# Public menu #}
-        <li class="nav-item{% if request.path == '/' %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:home' %}">
-            <i class="fas fa-fw fa-home"></i>
-            <span>{% trans "Homepage" %}</span>
-          </a>
-        </li>
-        <li class="nav-item{% if 'submit' in request.path %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:submit' %}">
-            <i class="fas fa-fw fa-plus-circle"></i>
-            <span>{% trans "New Ticket" %}</span>
-          </a>
-        </li>
-        {% if user.is_authenticated %}
-        <li class="nav-item{% if 'my-tickets' in request.path %} active{% endif %}">
-            <a class="nav-link" href="{% url 'helpdesk:my-tickets' %}">
-                <i class="fas fa-fw fa-tasks"></i>
-                <span>{% trans "My Tickets" %}</span>
+            <a class="nav-link" href="{% url 'helpdesk:report_index' %}">
+                <i class="fas fa-fw fa-chart-area"></i>
+                <span>{% trans "Reports" %}</span>
             </a>
         </li>
 
-        {% endif %}
-        {% if helpdesk_settings.HELPDESK_KB_ENABLED %}
-        <li class="nav-item{% if 'kb' in request.path %} active{% endif %}">
-          <a class="nav-link" href="{% url 'helpdesk:kb_index' %}">
-            <i class="fas fa-fw fa-database"></i>
-            <span>{% trans "Knowledgebase" %}</span>
-          </a>
+    {% else %}
+        {# Public menu #}
+        <li class="nav-item{% if request.path == '/' %} active{% endif %}">
+            <a class="nav-link" href="{% url 'helpdesk:home' %}">
+                <i class="fas fa-fw fa-home"></i>
+                <span>{% trans "Homepage" %}</span>
+            </a>
         </li>
+        <li class="nav-item{% if 'submit' in request.path %} active{% endif %}">
+            <a class="nav-link" href="{% url 'helpdesk:submit' %}">
+                <i class="fas fa-fw fa-plus-circle"></i>
+                <span>{% trans "New Ticket" %}</span>
+            </a>
+        </li>
+        {% if helpdesk_settings.HELPDESK_KB_ENABLED %}
+            <li class="nav-item{% if 'kb' in request.path %} active{% endif %}">
+                <a class="nav-link" href="{% url 'helpdesk:kb_index' %}">
+                    <i class="fas fa-fw fa-database"></i>
+                    <span>{% trans "Knowledgebase" %}</span>
+                </a>
+            </li>
+
+
         {% endif %}
     {% endif %}
-    </ul>
+
+{% if user.is_administrator %}
+
+        <li class="nav-item m-3">
+
+                        <label for="search4entry" class="form-label text-light">Entry Search</label>
+                        <input type="text"  class="form-control search4entry" id="search4entry" autocomplete="false" placeholder="Enter Entry ID, title or competitor name...">
+
+
+</li>
+        <li class="nav-item m-3">
+
+
+                        <label for="search4user" class="form-label text-light">User Search</label>
+                        <input type="text"  class="form-control search4user" id="search4user" autocomplete="false" placeholder="Enter User name or email...">
+
+        </li>
+
+
+{% endif %}
+</ul>

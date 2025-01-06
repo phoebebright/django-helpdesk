@@ -998,7 +998,7 @@ def ticket_list(request):
     }
     default_query_params = {
         'filtering': {
-            'status__in': [1, 2],
+            'status__in': [1, 2, 3],
         },
         'sorting': 'created',
         'search_string': '',
