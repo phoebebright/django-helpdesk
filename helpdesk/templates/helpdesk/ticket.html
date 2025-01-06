@@ -111,13 +111,11 @@
                         
                   
                                 <div class="row">
-                                    <div class="col-sm-12 col-md-6">
+                                    <div class="col-sm-12 col-md-6 p-3">
                                 
-                                <label for='public_commentBox'>{% trans "Message for User" %}</label>
-                          <textarea rows='12' cols='100' name='public_comment' id='public_commentBox'>{% if submitter_user %}Hi {{ submitter_user.first_name }},{% endif %}
-
-
-
+                                <label for='public_comment'>{% trans "Message for User" %}</label>
+                         <textarea class="form-control w-100" rows="12" name="public_comment" id="public_comment">
+{% if submitter_user %}Hi {{ submitter_user.first_name }},{% endif %}
 
 
 Best wishes,
@@ -125,24 +123,16 @@ Best wishes,
 {{ user.first_name }}
 {{ helpdesk_signature}}</textarea>
                                     </div>
-                                 <div class="col-sm-12 col-md-6">
+                                 <div class="col-sm-12 col-md-6 p-3">
                
-                                <label for='private_commentBox'>{% trans "Comment for Ticket" %}</label>
-                          <textarea rows='12' cols='100' name='private_commentBox' id='private_commentBox'></textarea>
+                                <label for='private_comment'>{% trans "Comment for Ticket" %}</label>
+                        <textarea class="form-control w-100" rows="12"  name='private_comment' id='private_comment'></textarea>
                                  </div>
                                 </div>
 
                             <dd class='form_help_text'>{% trans "You can insert ticket and queue details in your message. For more information, see the <a href='../../help/context/'>context help page</a>." %}</dd>
 
-                               {% if helpdesk_settings.HELPDESK_UPDATE_PUBLIC_DEFAULT %}
-                                <input type='hidden' name='public' value='1'>
-                            {% else %}
-                                <dt>
-                                    <label for='id_public'>{% trans "Is this update public?" %}</label> <span class='form_optional'>{% trans "(Optional)" %}</span>
-                                </dt>
-                                <dd><input type='checkbox' name='public' value="1" />&nbsp; {% trans 'Yes, make this update public.' %}</dd>
-                                <dd class='form_help_text'>{% trans "If this is public, the submitter will be e-mailed your comment or resolution." %}</dd>
-                            {% endif %}
+
 
                             <dt><label>{% trans "New Status" %}</label></dt>
                             {% if not ticket.can_be_resolved %}<dd>{% trans "This ticket cannot be resolved or closed until the tickets it depends on are resolved." %}</dd>{% endif %}
@@ -221,39 +211,7 @@ Best wishes,
 
                         </div>
 
-                        {% if ticket.checklists.exists %}
-                            <p>
-                                <button type="button" class="btn btn-warning btn-sm" id='ShowChecklistEditOptions'>
-                                    {% trans "Update checklists" %} &raquo;
-                                </button>
-                            </p>
 
-                            <div id="checklistEdit" style="display: none">
-                                <div class="row">
-                                    {% for checklist in ticket.checklists.all %}
-                                        <div class="col-sm-4 col-xs-12">
-                                            <div class="card mb-4">
-                                                <div class="card-header">
-                                                    <h5>{{ checklist }}</h5>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="list-group">
-                                                        {% for task in checklist.tasks.all %}
-                                                            <div class="list-group-item"{% if task.completion_date %} title="{% trans "Completed on" %} {{ task.completion_date }}" {% endif %}>
-                                                                <label>
-                                                                    <input type="checkbox" name="checklist-{{ checklist.id }}" value="{{ task.id }}" {% if task.completion_date %} checked{% endif %}>
-                                                                    {{ task }}
-                                                                </label>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
 
         {% if helpdesk_settings.HELPDESK_ENABLE_ATTACHMENTS %}
                         <p id='ShowFileUploadPara'><button type="button" class="btn btn-warning btn-sm" id='ShowFileUpload'>{% trans "Attach File(s) &raquo;" %}</button></p>
@@ -283,6 +241,7 @@ Best wishes,
                 </form>
 
             </div>
+        </div>
         </div>
 
 

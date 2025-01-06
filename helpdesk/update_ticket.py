@@ -20,9 +20,10 @@ from helpdesk.signals import update_ticket_done
 
 User = get_user_model()
 
+
 def add_staff_subscription(
-    user: User,
-    ticket: Ticket
+        user: User,
+        ticket: Ticket
 ) -> None:
     """Auto subscribe the staff member if that's what the settigs say and the
     user is authenticated and a staff member"""
@@ -71,7 +72,6 @@ def return_ticketccstring_and_show_subscribe(user, ticket):
 
 
 def subscribe_to_ticket_updates(ticket, user=None, email=None, can_view=True, can_update=False):
-
     if ticket is not None:
 
         queryset = TicketCC.objects.filter(
@@ -95,9 +95,9 @@ def subscribe_to_ticket_updates(ticket, user=None, email=None, can_view=True, ca
 
 
 def get_and_set_ticket_status(
-    new_status: int,
-    ticket: Ticket,
-    follow_up: FollowUp
+        new_status: int,
+        ticket: Ticket,
+        follow_up: FollowUp
 ) -> typing.Tuple[str, int]:
     """Performs comparision on previous status to new status,
     updating the title as required.
@@ -127,21 +127,21 @@ def get_and_set_ticket_status(
 
 
 def update_messages_sent_to_by_public_and_status(
-    public: bool,
-    ticket: Ticket,
-    follow_up: FollowUp,
-    context: str,
-    messages_sent_to: typing.Set[str],
-    files: typing.List[typing.Tuple[str, str]]
+        public: bool,
+        ticket: Ticket,
+        follow_up: FollowUp,
+        context: str,
+        messages_sent_to: typing.Set[str],
+        files: typing.List[typing.Tuple[str, str]]
 ) -> Ticket:
     """Sets the status of the ticket"""
     if public and (
-        follow_up.comment or (
+            follow_up.comment or (
             follow_up.new_status in (
-                Ticket.RESOLVED_STATUS,
-                Ticket.CLOSED_STATUS
-            )
-        )
+            Ticket.RESOLVED_STATUS,
+            Ticket.CLOSED_STATUS
+    )
+    )
     ):
         if follow_up.new_status == Ticket.RESOLVED_STATUS:
             template = 'resolved_'
@@ -168,7 +168,7 @@ def update_messages_sent_to_by_public_and_status(
 
 
 def get_template_staff_and_template_cc(
-    reassigned, follow_up:  FollowUp
+        reassigned, follow_up: FollowUp
 ) -> typing.Tuple[str, str]:
     if reassigned:
         template_staff = 'assigned_owner'
@@ -207,6 +207,8 @@ def update_ticket(
         new_checklists=None,
         message_id=None,
         customfields_form=None,
+        public_comment=None,
+        private_comment=None,
 ):
     # We need to allow the 'ticket' and 'queue' contexts to be applied to the
     # comment.
@@ -224,24 +226,46 @@ def update_ticket(
 
     from django.template import engines
     template_func = engines['django'].from_string
+
     # this prevents system from trying to render any template tags
     # broken into two stages to prevent changes from first replace being themselves
     # changed by the second replace due to conflicting syntax
-    comment = comment.replace(
-        '{%', 'X-HELPDESK-COMMENT-VERBATIM').replace('%}', 'X-HELPDESK-COMMENT-ENDVERBATIM')
-    comment = comment.replace(
-        'X-HELPDESK-COMMENT-VERBATIM', '{% verbatim %}{%'
-    ).replace(
-        'X-HELPDESK-COMMENT-ENDVERBATIM', '%}{% endverbatim %}'
-    )
+
+    def comment_replace(comment):
+        comment = comment.replace(
+            '{%', 'X-HELPDESK-COMMENT-VERBATIM').replace('%}', 'X-HELPDESK-COMMENT-ENDVERBATIM')
+        comment = comment.replace(
+            'X-HELPDESK-COMMENT-VERBATIM', '{% verbatim %}{%'
+        ).replace(
+            'X-HELPDESK-COMMENT-ENDVERBATIM', '%}{% endverbatim %}'
+        )
+        return template_func(comment).render(context)
+
+        # default comment
+
+    if comment:
+        comment = comment_replace(comment)
+    if public_comment:
+        public_comment = comment_replace(public_comment)
+    if private_comment:
+        private_comment = comment_replace(private_comment)
+
     # render the neutralized template
-    comment = template_func(comment).render(context)
 
     if owner == -1 and ticket.assigned_to:
         owner = ticket.assigned_to.id
 
-    f = FollowUp(ticket=ticket, date=timezone.now(), comment=comment,
-                 time_spent=time_spent, message_id=message_id, title=title)
+    if comment:
+        f = FollowUp(ticket=ticket, date=timezone.now(), comment=comment,
+                     time_spent=time_spent, message_id=message_id, title=title)
+    if private_comment:
+        f = FollowUp(ticket=ticket, date=timezone.now(), comment=private_comment, public=False,
+                     time_spent=time_spent, message_id=message_id, title=title)
+        f.save()
+    if public_comment:
+        f = FollowUp(ticket=ticket, date=timezone.now(), comment=public_comment, public=True,
+                     time_spent=time_spent, message_id=message_id, title=title)
+        f.save()
 
     if is_helpdesk_staff(user):
         f.user = user
@@ -313,11 +337,11 @@ def update_ticket(
             new_value=due_date,
         )
         ticket.due_date = due_date
-    
+
     # save custom fields and ticket changes
     if customfields_form and customfields_form.is_valid():
         customfields_form.save(followup=f)
-    
+
     for checklist in ticket.checklists.all():
         if checklist.id not in new_checklists:
             continue
@@ -344,9 +368,9 @@ def update_ticket(
                 )
 
     if new_status in (
-        Ticket.RESOLVED_STATUS, Ticket.CLOSED_STATUS
+            Ticket.RESOLVED_STATUS, Ticket.CLOSED_STATUS
     ) and (
-        new_status == Ticket.RESOLVED_STATUS or ticket.resolution is None
+            new_status == Ticket.RESOLVED_STATUS or ticket.resolution is None
     ):
         ticket.resolution = comment
 
@@ -374,8 +398,8 @@ def update_ticket(
 
     template_staff, template_cc = get_template_staff_and_template_cc(reassigned, f)
     if ticket.assigned_to and (
-        ticket.assigned_to.usersettings_helpdesk.email_on_ticket_change
-        or (reassigned and ticket.assigned_to.usersettings_helpdesk.email_on_ticket_assign)
+            ticket.assigned_to.usersettings_helpdesk.email_on_ticket_change
+            or (reassigned and ticket.assigned_to.usersettings_helpdesk.email_on_ticket_assign)
     ):
         messages_sent_to.update(ticket.send(
             {'assigned_to': (template_staff, context)},
@@ -399,4 +423,3 @@ def update_ticket(
     # auto subscribe user if enabled
     add_staff_subscription(user, ticket)
     return f
-

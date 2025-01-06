@@ -576,7 +576,10 @@ def update_ticket_view(request, ticket_id, public=False):
     except PermissionDenied:
         return redirect_to_login(request.path, 'helpdesk:login')
 
+    # two comments can be added - one for user, one for the team
     comment = request.POST.get('comment', '')
+    public_comment = request.POST.get('public_comment', '')
+    private_comment = request.POST.get('private_comment', '')
     new_status = int(request.POST.get('new_status', ticket.status))
     title = request.POST.get('title', ticket.title)
     owner = int(request.POST.get('owner', -1))
@@ -605,6 +608,8 @@ def update_ticket_view(request, ticket_id, public=False):
     no_changes = all([
         not request.FILES,
         not comment,
+        not private_comment,
+        not public_comment,
         not changes_in_checklists,
         new_status == ticket.status,
         title == ticket.title,
@@ -623,6 +628,8 @@ def update_ticket_view(request, ticket_id, public=False):
         ticket,
         title = title,
         comment = comment,
+        private_comment = private_comment,
+        public_comment = public_comment,
         files = request.FILES.getlist('attachment'),
         public = request.POST.get('public', False),
         owner = int(request.POST.get('owner', -1)),
