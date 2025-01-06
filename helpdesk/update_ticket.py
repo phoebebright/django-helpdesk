@@ -255,23 +255,30 @@ def update_ticket(
     if owner == -1 and ticket.assigned_to:
         owner = ticket.assigned_to.id
 
+    if not (comment or public_comment or private_comment):
+        print(f"Error: no comment submitted")
+        return None
+
     if comment:
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=comment,
                      time_spent=time_spent, message_id=message_id, title=title)
-        if is_helpdesk_staff(user):
-            f.user = user
+
     if private_comment:
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=private_comment, public=False,
                      time_spent=time_spent, message_id=message_id, title=title)
-        if is_helpdesk_staff(user):
-            f.user = user
-        f.save()
+
     if public_comment:
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=public_comment, public=True,
                      time_spent=time_spent, message_id=message_id, title=title)
+
+
+    try:
         if is_helpdesk_staff(user):
             f.user = user
         f.save()
+    except Exception as e:
+        print(f"Error saving followup: {e}")
+        return None
 
     reassigned = False
 
