@@ -418,9 +418,24 @@ def view_ticket(request, ticket_id):
     queues = HelpdeskUser(request.user).get_queues()
     queue_choices = _get_queue_choices(queues)
     # TODO: shouldn't this template get a form to begin with?
-    form = TicketForm(
-        initial={"due_date": ticket.due_date}, queue_choices=queue_choices
+    # this is not a model form!
+
+    initial_data = {
+        'due_date': ticket.due_date,
+        'priority': ticket.priority,
+        'title': ticket.title,
+        'queue': ticket.queue.id,
+        'owner': ticket.assigned_to.id if ticket.assigned_to else None,
+    }
+
+    # Filter out None values
+    initial_data = {k: v for k, v in initial_data.items() if v is not None}
+
+    return TicketForm(
+        initial=initial_data,
+        queue_choices=queue_choices
     )
+
 
     ticketcc_string, show_subscribe = return_ticketccstring_and_show_subscribe(
         request.user, ticket

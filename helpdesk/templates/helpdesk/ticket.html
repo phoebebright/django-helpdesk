@@ -207,11 +207,12 @@ Best wishes,
                                             {% for u in active_users %}
                                                 <option
                                                         value="{{ u.id }}"
-                                                        class="{% if u.id == ticket.assigned_to.id or u.email == user.email %}active-option{% endif %}"
-                                                        {% if u.id == ticket.assigned_to.id or u.email == user.email %}selected{% endif %}
-                                                >
-                                                    {{ u }}
-                                                </option>
+                                                               {% if ticket.assigned_to %}
+                                                        {% if u.id == ticket.assigned_to.id %}selected{% endif %}
+                                                        {% else %}
+                                                          {% if u.email == user.email %}selected{% endif %}
+                                                        {% endif %}>{{ u }}</option>
+
                                             {% endfor %}
                                         </select>
                                     </div>

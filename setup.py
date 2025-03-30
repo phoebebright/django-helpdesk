@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 import sys
 
 
-version = '1.3.1c' #PB version
+version = '1.3.1d' #PB version
 
 
 # Provided as an attribute, so you can append to these instead
