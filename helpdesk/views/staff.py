@@ -633,6 +633,8 @@ def update_ticket_view(request, ticket_id, public=False):
     # two comments can be added - one for user, one for the team
     comment = request.POST.get('comment', '')
     public_comment = request.POST.get('public_comment', '')
+    public_comment_template = request.POST.get('public_comment_template', '')
+    public_comment_changed = (public_comment != public_comment_template)
     private_comment = request.POST.get('private_comment', '')
     new_status = int(request.POST.get('new_status', ticket.status))
     title = request.POST.get('title', ticket.title)
@@ -673,6 +675,8 @@ def update_ticket_view(request, ticket_id, public=False):
             or (not owner and not ticket.assigned_to)
             or (owner and User.objects.get(id=owner) == ticket.assigned_to),
             not customfields_form.has_changed(),
+            not public_comment_changed,
+            private_comment == ""
         ]
     )
     if no_changes:
@@ -685,6 +689,7 @@ def update_ticket_view(request, ticket_id, public=False):
         comment=comment,
         private_comment = private_comment,
         public_comment = public_comment,
+        public_comment_changed = public_comment_changed,
         files = request.FILES.getlist('attachment'),
         public = request.POST.get('public', False),
         owner = int(request.POST.get('owner', -1)),

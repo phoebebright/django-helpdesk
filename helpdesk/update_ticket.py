@@ -203,6 +203,7 @@ def update_ticket(
     customfields_form=None,
         public_comment=None,
         private_comment=None,
+public_comment_changed=False,
 ):
     # We need to allow the 'ticket' and 'queue' contexts to be applied to the
     # comment.
@@ -256,7 +257,7 @@ def update_ticket(
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=private_comment, public=False,
                      time_spent=time_spent, message_id=message_id, title=title)
 
-    if public_comment:
+    if public_comment and public_comment_changed:
         f = FollowUp(ticket=ticket, date=timezone.now(), comment=public_comment, public=True,
                      time_spent=time_spent, message_id=message_id, title=title)
 

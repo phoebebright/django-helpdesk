@@ -113,7 +113,13 @@
 
                             <div class="row">
                                 <div class="col-sm-12 col-md-6 p-3">
+                                <input type="hidden" name="public_comment_template" value="{% if submitter_user %}Hi {{ submitter_user.first_name }},{% endif %}
 
+
+Best wishes,
+
+{{ user.first_name }}
+{{ helpdesk_signature}}" />
                                     <label for='public_comment'>{% trans "Message for User" %}</label>
                                     <textarea class="form-control w-100" rows="12" name="public_comment" id="public_comment">
 {% if submitter_user %}Hi {{ submitter_user.first_name }},{% endif %}
