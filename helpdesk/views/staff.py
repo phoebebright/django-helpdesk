@@ -431,7 +431,7 @@ def view_ticket(request, ticket_id):
     # Filter out None values
     initial_data = {k: v for k, v in initial_data.items() if v is not None}
 
-    return TicketForm(
+    form = TicketForm(
         initial=initial_data,
         queue_choices=queue_choices
     )
