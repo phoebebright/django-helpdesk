@@ -76,6 +76,7 @@
                                 <th>{% trans "Due Date" %}</th>
                                 <th>{% trans "Owner" %}</th>
                                 <th>{% trans "Submitter" %}</th>
+                                <th>{% trans "Last Followup" %}</th>
                                 {% if helpdesk_settings.HELPDESK_ENABLE_TIME_SPENT_ON_TICKET %}<th>{% trans "Time Spent" %}</th>{% endif %}
                                 {% if helpdesk_settings.HELPDESK_KB_ENABLED %}<th>{% trans "KB item" %}</th>{% endif %}
                             </tr>
@@ -170,10 +171,10 @@
                                         <option id="filterBuilderSelect-Sort" value="Sort"{% if query_params.sorting %} disabled{% endif %}>
                                             {% trans "Sorting" %}
                                         </option>
-                                        <option id="filterBuilderSelect-Owner" value="Owner"{% if query_params.filtering.assigned_to__id__in %} disabled{% endif %}>
+                                        <option id="filterBuilderSelect-Owner" value="Owner"{% if query_params.filtering.assigned_to__id__in or query_params.filtering_null.assigned_to__id__isnull %} disabled{% endif %}>
                                             {% trans "Owner" %}
                                         </option>
-                                        <option id="filterBuilderSelect-Queue" value="Queue"{% if query_params.filtering.queue__id__in %} disabled{% endif %}>
+                                        <option id="filterBuilderSelect-Queue" value="Queue"{% if query_params.filtering.queue__id__in or query_params.filtering_null.queue__id__isnull %} disabled{% endif %}>
                                             {% trans "Queue" %}
                                         </option>
                                         <option id="filterBuilderSelect-Status" value="Status"{% if query_params.filtering.status__in %} disabled{% endif %}>
@@ -185,7 +186,7 @@
                                         <option id="filterBuilderSelect-Dates" value="Dates"{% if query_params.filtering.created__gte or query_params.filtering.created__lte %} disabled{% endif %}>
                                             {% trans "Date Range" %}
                                         </option>
-                                        <option id="filterBuilderSelect-KBItems" value="KBItems"{% if query_params.filtering.kbitem__in %} disabled{% endif %}>
+                                        <option id="filterBuilderSelect-KBItems" value="KBItems"{% if query_params.filtering.kbitem__in or query_params.filtering_null.kbitem__isnull %} disabled{% endif %}>
                                             {% trans "Knowledge base items" %}
                                         </option>
                                     </select>
@@ -200,11 +201,11 @@
                                     id="filterBoxSort">
                                     {% include 'helpdesk/filters/sorting.html' %}
                                 </li>
-                                <li class="filterBox{% if query_params.filtering.assigned_to__id__in %} filterBoxShow{% endif %} list-group-item"
+                                <li class="filterBox{% if query_params.filtering.assigned_to__id__in or query_params.filtering_null.assigned_to__id__isnull %} filterBoxShow{% endif %} list-group-item"
                                     id=filterBoxOwner>
                                     {% include 'helpdesk/filters/owner.html' %}
                                 </li>
-                                <li class="list-group-item filterBox{% if query_params.filtering.queue__id__in %} filterBoxShow{% endif %}"
+                                <li class="list-group-item filterBox{% if query_params.filtering.queue__id__in or query_params.filtering_null.queue__id__isnull %} filterBoxShow{% endif %}"
                                     id="filterBoxQueue">
                                     {% include 'helpdesk/filters/queue.html' %}
                                 </li>
@@ -220,7 +221,7 @@
                                     id="filterBoxKeywords">
                                     {% include 'helpdesk/filters/keywords.html' %}
                                 </li>
-                                <li class="list-group-item filterBox{% if query_params.filtering.kbitem__in %} filterBoxShow{% endif %}"
+                                <li class="list-group-item filterBox{% if query_params.filtering.kbitem__in or query_params.filtering_null.kbitem__isnull %} filterBoxShow{% endif %}"
                                     id="filterBoxKBItems">
                                     {% include 'helpdesk/filters/kbitems.html' %}
                                 </li>
@@ -330,7 +331,13 @@
     {% else %}
     <script src="{% static 'helpdesk/vendor/timeline3/js/timeline.js' %}"></script>
     {% endif %}
+
     <script>
+        window.helpdesk_settings = {
+            LANGUAGE_CODE: "{{ helpdesk_settings.LANGUAGE_CODE|default:'en-US' }}",
+            NO_FOLLOWUP_TEXT: "{% trans helpdesk_settings.ALTERNATIVE_UI_STRINGS.No_followup_found|default:'No followup found' %}"
+        };
+
         function get_url(row) {
             return "{% url 'helpdesk:view' 1234 %}".replace(/1234/, row.id.toString());
         }
@@ -415,6 +422,27 @@
                         }
                     },
                     {data: "submitter"},
+                    {
+                        data: "last_followup",
+                        render: function (data, type, row) {
+                            let locale = navigator.language || navigator.userLanguage || window.helpdesk_settings.LANGUAGE_CODE;
+                            
+                            if (isNaN(Date.parse(data))) {
+                                return window.helpdesk_settings.NO_FOLLOWUP_TEXT;
+                            }
+
+                            let date = new Date(data);
+                            return date.toLocaleString(locale, {
+                                weekday: "short",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true
+                            });
+                        }
+                    },
                     {% if helpdesk_settings.HELPDESK_ENABLE_TIME_SPENT_ON_TICKET %}
                     {data: "time_spent", "visible": false},
                     {% endif %}

@@ -15,7 +15,13 @@ from django.views.generic import TemplateView
 from helpdesk import settings as helpdesk_settings
 from helpdesk.decorators import helpdesk_staff_member_required, protect_view
 from helpdesk.views import feeds, login, public, staff
-from helpdesk.views.api import CreateUserView, FollowUpAttachmentViewSet, FollowUpViewSet, TicketViewSet, UserTicketViewSet
+from helpdesk.views.api import (
+    CreateUserView,
+    FollowUpAttachmentViewSet,
+    FollowUpViewSet,
+    TicketViewSet,
+    UserTicketViewSet,
+)
 from rest_framework.routers import DefaultRouter
 
 
@@ -69,11 +75,9 @@ urlpatterns = [
     path("tickets/<int:ticket_id>/delete/",
          staff.delete_ticket, name="delete"),
     path("tickets/<int:ticket_id>/hold/", staff.hold_ticket, name="hold"),
-    path("tickets/<int:ticket_id>/unhold/",
-         staff.unhold_ticket, name="unhold"),
+    path("tickets/<int:ticket_id>/unhold/", staff.unhold_ticket, name="unhold"),
     path("tickets/<int:ticket_id>/cc/", staff.ticket_cc, name="ticket_cc"),
-    path("tickets/<int:ticket_id>/cc/add/",
-         staff.ticket_cc_add, name="ticket_cc_add"),
+    path("tickets/<int:ticket_id>/cc/add/", staff.ticket_cc_add, name="ticket_cc_add"),
     path(
         "tickets/<int:ticket_id>/cc/delete/<int:cc_id>/",
         staff.ticket_cc_del,
@@ -107,35 +111,33 @@ urlpatterns = [
     path(
         "tickets/<int:ticket_id>/checklists/<int:checklist_id>/",
         staff.edit_ticket_checklist,
-        name="edit_ticket_checklist"
+        name="edit_ticket_checklist",
     ),
     path(
         "tickets/<int:ticket_id>/checklists/<int:checklist_id>/delete/",
         staff.delete_ticket_checklist,
-        name="delete_ticket_checklist"
+        name="delete_ticket_checklist",
     ),
     re_path(r"^raw/(?P<type_>\w+)/$", staff.raw_details, name="raw"),
     path("rss/", staff.rss_list, name="rss_index"),
     path("reports/", staff.report_index, name="report_index"),
-    re_path(r"^reports/(?P<report>\w+)/$",
-            staff.run_report, name="run_report"),
+    re_path(r"^reports/(?P<report>\w+)/$", staff.run_report, name="run_report"),
     path("save_query/", staff.save_query, name="savequery"),
     path("delete_query/<int:pk>/", staff.delete_saved_query, name="delete_query"),
     path("settings/", staff.EditUserSettingsView.as_view(), name="user_settings"),
     path("ignore/", staff.email_ignore, name="email_ignore"),
     path("ignore/add/", staff.email_ignore_add, name="email_ignore_add"),
-    path("ignore/delete/<int:id>/",
-         staff.email_ignore_del, name="email_ignore_del"),
+    path("ignore/delete/<int:id>/", staff.email_ignore_del, name="email_ignore_del"),
     path("checklist-templates/", staff.checklist_templates, name="checklist_templates"),
     path(
         "checklist-templates/<int:checklist_template_id>/",
         staff.checklist_templates,
-        name="edit_checklist_template"
+        name="edit_checklist_template",
     ),
     path(
         "checklist-templates/<int:checklist_template_id>/delete/",
         staff.delete_checklist_template,
-        name="delete_checklist_template"
+        name="delete_checklist_template",
     ),
     re_path(
         r"^datatables_ticket_list/(?P<query>{})$".format(base64_pattern),
@@ -165,7 +167,11 @@ if helpdesk_settings.HELPDESK_ENABLE_DEPENDENCIES_ON_TICKET:
 
 urlpatterns += [
     path("", protect_view(public.Homepage.as_view()), name="home"),
-    path("tickets/my-tickets/", protect_view(public.MyTickets.as_view()), name="my-tickets"),
+    path(
+        "tickets/my-tickets/",
+        protect_view(public.MyTickets.as_view()),
+        name="my-tickets",
+    ),
     path("tickets/submit/", public.create_ticket, name="submit"),
     path(
         "tickets/submit_iframe/",
@@ -178,8 +184,7 @@ urlpatterns += [
         name="success_iframe",
     ),
     path("view/", protect_view(public.ViewTicket.as_view()), name="public_view"),
-    path("change_language/", public.change_language,
-         name="public_change_language"),
+    path("change_language/", public.change_language, name="public_change_language"),
 ]
 
 urlpatterns += [
@@ -215,8 +220,9 @@ router = DefaultRouter()
 router.register(r"tickets", TicketViewSet, basename="ticket")
 router.register(r"user_tickets", UserTicketViewSet, basename="user_tickets")
 router.register(r"followups", FollowUpViewSet, basename="followups")
-router.register(r"followups-attachments",
-                FollowUpAttachmentViewSet, basename="followupattachments")
+router.register(
+    r"followups-attachments", FollowUpAttachmentViewSet, basename="followupattachments"
+)
 router.register(r"users", CreateUserView, basename="user")
 urlpatterns += [re_path(r"^api/", include(router.urls))]
 
@@ -250,8 +256,7 @@ urlpatterns += [
 if helpdesk_settings.HELPDESK_KB_ENABLED:
     urlpatterns += [
         path("kb/", kb.index, name="kb_index"),
-        re_path(r"^kb/(?P<slug>[A-Za-z0-9_-]+)/$",
-                kb.category, name="kb_category"),
+        re_path(r"^kb/(?P<slug>[A-Za-z0-9_-]+)/$", kb.category, name="kb_category"),
         re_path(r"^kb/(?P<item>\d+)/vote/(?P<vote>up|down)/$", kb.vote, name="kb_vote"),
         re_path(
             r"^kb_iframe/(?P<slug>[A-Za-z0-9_-]+)/$",
@@ -269,8 +274,7 @@ urlpatterns += [
     path(
         "system_settings/",
         login_required(
-            DirectTemplateView.as_view(
-                template_name="helpdesk/system_settings.html")
+            DirectTemplateView.as_view(template_name="helpdesk/system_settings.html")
         ),
         name="system_settings",
     ),
