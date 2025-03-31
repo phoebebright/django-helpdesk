@@ -1,3 +1,4 @@
+import logging
 import typing
 
 from django.core.exceptions import ValidationError
@@ -17,6 +18,8 @@ from helpdesk.models import (
     TicketCC,
 )
 from helpdesk.signals import update_ticket_done
+
+logger = logging.getLogger("helpdesk")
 
 User = get_user_model()
 
@@ -267,7 +270,10 @@ public_comment_changed=False,
         f = private_followup
     if not f and has_public_comment:
         f = public_followup
-
+    if not f:
+        logger.error(f"No followup provided in update_ticket for ticket {ticket.id}")
+        print(f"Error: no followup created")
+        return None
     # try:
     #     if is_helpdesk_staff(user):
     #         f.user = user
