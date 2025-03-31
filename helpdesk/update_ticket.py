@@ -126,7 +126,6 @@ def get_and_set_ticket_status(
 
 
 def update_messages_sent_to_by_public_and_status(
-    public: bool,
     ticket: Ticket,
     follow_up: FollowUp,
     context: str,
@@ -134,10 +133,7 @@ def update_messages_sent_to_by_public_and_status(
     files: typing.List[typing.Tuple[str, str]],
 ) -> Ticket:
     """Sets the status of the ticket"""
-    if public and (
-        follow_up.comment
-        or (follow_up.new_status in (Ticket.RESOLVED_STATUS, Ticket.CLOSED_STATUS))
-    ):
+    if follow_up.comment or (follow_up.new_status in (Ticket.RESOLVED_STATUS, Ticket.CLOSED_STATUS)):
         if follow_up.new_status == Ticket.RESOLVED_STATUS:
             template = "resolved_"
         elif follow_up.new_status == Ticket.CLOSED_STATUS:
@@ -249,26 +245,36 @@ public_comment_changed=False,
         print(f"Error: no comment submitted")
         return None
 
+
+    helpdesk_user = user if is_helpdesk_staff(user) else None
+    has_private_comment = bool(public_comment)
+    has_public_comment = public_comment and public_comment_changed
+    f = None
     if comment:
-        f = FollowUp(ticket=ticket, date=timezone.now(), comment=comment,
-                     time_spent=time_spent, message_id=message_id, title=title)
+        f = FollowUp.objects.create(ticket=ticket, date=timezone.now(), comment=comment,
+                     time_spent=time_spent, message_id=message_id, title=title, user=helpdesk_user)
 
-    if private_comment:
-        f = FollowUp(ticket=ticket, date=timezone.now(), comment=private_comment, public=False,
-                     time_spent=time_spent, message_id=message_id, title=title)
+    if has_private_comment:
+        private_followup = FollowUp.objects.create(ticket=ticket, date=timezone.now(), comment=private_comment, public=False,
+                     time_spent=time_spent, message_id=message_id, title=title, user=helpdesk_user)
 
-    if public_comment and public_comment_changed:
-        f = FollowUp(ticket=ticket, date=timezone.now(), comment=public_comment, public=True,
-                     time_spent=time_spent, message_id=message_id, title=title)
+    if has_public_comment:
+        public_followup = FollowUp.objects.create(ticket=ticket, date=timezone.now(), comment=public_comment, public=True,
+                     time_spent=time_spent, message_id=message_id, title=title, user=helpdesk_user)
 
+    # hack as not understanding where comment might be set and not private or public
+    if not f and has_private_comment:
+        f = private_followup
+    if not f and has_public_comment:
+        f = public_followup
 
-    try:
-        if is_helpdesk_staff(user):
-            f.user = user
-        f.save()
-    except Exception as e:
-        print(f"Error saving followup: {e}")
-        return None
+    # try:
+    #     if is_helpdesk_staff(user):
+    #         f.user = user
+    #     f.save()
+    # except Exception as e:
+    #     print(f"Error saving followup: {e}")
+    #     return None
 
     reassigned = False
 
@@ -386,9 +392,12 @@ public_comment_changed=False,
         messages_sent_to.add(user.email)
     except AttributeError:
         pass
-    ticket = update_messages_sent_to_by_public_and_status(
-        public, ticket, f, context, messages_sent_to, files
-    )
+
+    # this is where the email gets sent to the submitter
+    if has_public_comment:
+        ticket = update_messages_sent_to_by_public_and_status(
+            ticket, public_followup, context, messages_sent_to, files
+        )
 
     template_staff, template_cc = get_template_staff_and_template_cc(reassigned, f)
     if ticket.assigned_to and (
@@ -415,6 +424,9 @@ public_comment_changed=False,
             files=files,
         )
     )
+
+
+
     ticket.save()
 
     # emit signal with followup when the ticket update is done

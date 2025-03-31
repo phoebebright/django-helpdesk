@@ -672,6 +672,7 @@ class Ticket(models.Model):
                 )
                 recipients.add(recipient)
 
+        # will only send these emails if the role is in the list of roles passed in
         send("submitter", self.submitter_email)
         send("ticket_cc", self.queue.updated_ticket_cc)
         send("new_ticket_cc", self.queue.new_ticket_cc)
