@@ -96,7 +96,7 @@
             <div class="card-header">{% trans "Respond to this ticket" %}</div>
             <div class="card-body">
 
-                <form method='post' action='update/' enctype='multipart/form-data'>
+                <form id='ticket_form' method='post' action='update/' enctype='multipart/form-data'>
 
                     <fieldset>
                         <dl>
@@ -145,35 +145,35 @@ Best wishes,
                             {% if not ticket.can_be_resolved %}<dd>{% trans "This ticket cannot be resolved or closed until the tickets it depends on are resolved." %}</dd>{% endif %}
                             {% if ticket.status == 1 %}
                                 <dd><div class="form-group">
-                                    <label for='st_open' class='active radio-inline'><input type='radio' name='new_status' value='1' id='st_open' checked='checked'>{% trans "Open" %} &raquo;</label>
-                                    <label for='st_resolved' class="radio-inline"><input type='radio' name='new_status' value='3' id='st_resolved'{% if not ticket.can_be_resolved %} disabled='disabled'{% endif %}>{% trans "Resolved" %} &raquo;</label>
-                                    <label for='st_closed' class="radio-inline"><input type='radio' name='new_status' value='4' id='st_closed'{% if not ticket.can_be_resolved %} disabled='disabled'{% endif %}>{% trans "Closed" %} &raquo;</label>
-                                    <label class="radio-inline" for='st_duplicate'><input type='radio' name='new_status' value='5' id='st_duplicate'>{% trans "Duplicate" %}</label>
+
+                                    <label for='st_open' class='active radio-inline form-check-label'><input type='radio' name='new_status' class="form-check-input" value='1' id='st_open' checked='checked'>{% trans "Open" %} &raquo;</label>
+                                    <label for='st_resolved' class="radio-inline form-check-label"><input type='radio' name='new_status' class="form-check-input" value='3' id='st_resolved'{% if not ticket.can_be_resolved %} disabled='disabled'{% endif %}>{% trans "Resolved" %} &raquo;</label>
+                                    <label for='st_closed' class="radio-inline form-check-label"><input type='radio' name='new_status' class="form-check-input" value='4' id='st_closed'{% if not ticket.can_be_resolved %} disabled='disabled'{% endif %}>{% trans "Closed" %} &raquo;</label>
+                                    <label class="radio-inline" for='st_duplicate form-check-label'><input type='radio' name='new_status' class="form-check-input" value='5' id='st_duplicate'>{% trans "Duplicate" %}</label>
                                 </div></dd>
                             {% endif %}
                             {% if ticket.status == 2 %}
                                 <dd><div class="form-group">
-                                    <label for='st_reopened' class='active radio-inline'><input type='radio' name='new_status' value='2' id='st_reopened' checked='checked'>{% trans "Reopened" %} &raquo;</label>
-                                    <label class="radio-inline" for='st_resolved'><input type='radio' name='new_status' value='3' id='st_resolved'{% if not ticket.can_be_resolved %} disabled='disabled'{% endif %}>{% trans "Resolved" %} &raquo;</label>
-                                    <label class="radio-inline" for='st_closed'><input type='radio' name='new_status' value='4' id='st_closed'{% if not ticket.can_be_resolved %} disabled='disabled'{% endif %}>{% trans "Closed" %} &raquo;</label>
-                                    <label class="radio-inline" for='st_duplicate'><input type='radio' name='new_status' value='5' id='st_duplicate'>{% trans "Duplicate" %}</label>
+                                    <label for='st_reopened' class='active radio-inline form-check-label'><input type='radio' name='new_status' class="form-check-input" value='2' id='st_reopened' checked='checked'>{% trans "Reopened" %} &raquo;</label>
+                                    <label class="radio-inline form-check-label" for='st_closed'><input type='radio' name='new_status' class="form-check-input" value='4' id='st_closed'{% if not ticket.can_be_resolved %} disabled='disabled'{% endif %}>{% trans "Closed" %} &raquo;</label>
+                                    <label class="radio-inline form-check-label" for='st_duplicate'><input type='radio' name='new_status' class="form-check-input" value='5' id='st_duplicate'>{% trans "Duplicate" %}</label>
                                 </div></dd>
                             {% endif %}
                             {% if ticket.status == 3 %}
                                 <dd><div class="form-group">
-                                    <label for='st_reopened' class="radio-inline"><input type='radio' name='new_status' value='2' id='st_reopened'>{% trans "Reopened" %} &laquo;</label>
-                                    <label for='st_resolved' class='active radio-inline'><input type='radio' name='new_status' value='3' id='st_resolved' checked='checked'>{% trans "Resolved" %} &raquo;</label>
-                                    <label class="radio-inline" for='st_closed'><input type='radio' name='new_status' value='4' id='st_closed'>{% trans "Closed" %}</label>
+                                    <label for='st_reopened' class="radio-inline form-check-label"><input type='radio' name='new_status' class="form-check-input" value='2' id='st_reopened'>{% trans "Reopened" %} &laquo;</label>
+                                    <label for='st_resolved' class='active radio-inline form-check-label'><input type='radio' name='new_status' class="form-check-input" value='3' id='st_resolved' checked='checked'>{% trans "Resolved" %} &raquo;</label>
+                                    <label class="radio-inline form-check-label" for='st_closed'><input type='radio' name='new_status' class="form-check-input" value='4' id='st_closed'>{% trans "Closed" %}</label>
                                 </div></dd>
                             {% endif %}
                             {% if ticket.status == 4 %}
-                                <dd><div class="form-group"><label for='st_reopened' class="radio-inline"><input type='radio' name='new_status' value='2' id='st_reopened'>{% trans "Reopened" %} &laquo;</label>
-                                    <label class="radio-inline" for='st_closed'><input type='radio' name='new_status' value='4' id='st_closed' checked='checked'>{% trans "Closed" %}</label></div></dd>
+                                <dd><div class="form-group"><label for='st_reopened' class="radio-inline form-check-label"><input type='radio' name='new_status' value='2' id='st_reopened'>{% trans "Reopened" %} &laquo;</label>
+                                    <label class="radio-inline form-check-label" for='st_closed'><input type='radio' name='new_status' value='4' id='st_closed' checked='checked'>{% trans "Closed" %}</label></div></dd>
                             {% endif %}
                             {% if ticket.status == 5 %}
                                 <dd><div class="form-group">
-                                    <label class="radio-inline" for='st_reopened'><input type='radio' name='new_status' value='2' id='st_reopened'>{% trans "Reopened" %} &laquo;</label>
-                                    <label class="radio-inline" for='st_duplicate'><input type='radio' name='new_status' value='5' id='st_duplicate' checked='checked'>{% trans "Duplicate" %}</label>
+                                    <label class="radio-inline form-check-label" for='st_reopened'><input type='radio' name='new_status' class="form-check-input" value='2' id='st_reopened'>{% trans "Reopened" %} &laquo;</label>
+                                    <label class="radio-inline form-check-label" for='st_duplicate'><input type='radio' name='new_status' class="form-check-input" value='5' id='st_duplicate' checked='checked'>{% trans "Duplicate" %}</label>
                                 </div></dd>
                             {% endif %}
 
@@ -289,6 +289,39 @@ Best wishes,
                     $textarea.removeAttr('name');
                 }
             });
+
+                const trackedFields = ['#id_title', '#id_priority', '#id_queue', 'input[name="new_status"]'];
+
+    // Function to format the log entry
+    function formatLog(fieldName, newValue) {
+
+        return `\n${fieldName} changed → ${newValue}`;
+    }
+
+    // Detect changes in tracked fields
+    trackedFields.forEach(function(fieldId) {
+        $(fieldId).on('change', function() {
+            const fieldName = $(this).attr('name') || $(this).attr('id');
+            const newValue = $(this).val();
+
+            // Append change to private_comment
+            const logEntry = formatLog(fieldName, newValue);
+            $('#private_comment').val(function(i, currentValue) {
+                return currentValue + logEntry;
+            });
+        });
+    });
+
+    // Form submission validation (ensure at least one comment exists)
+    $('#ticket_form').on('submit', function(e) {
+        const privateComment = $('#private_comment').val().trim();
+        const publicComment = $('#public_comment').val().trim();
+
+        if (!privateComment && !publicComment) {
+            e.preventDefault();
+            alert('Please enter at least one comment before submitting.');
+        }
+    });
 
 
             $("#ShowFurtherEditOptions").click(function() {
