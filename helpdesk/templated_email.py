@@ -57,6 +57,7 @@ def send_templated_mail(
     from helpdesk.settings import (
         HELPDESK_EMAIL_FALLBACK_LOCALE,
         HELPDESK_EMAIL_SUBJECT_TEMPLATE,
+    HELPDESK_EMAIL_BACKEND,
     )
 
     headers = extra_headers or {}
@@ -115,7 +116,7 @@ def send_templated_mail(
         recipients,
         bcc=bcc,
         headers=headers,
-        connection=get_connection(backend=settings.HELPDESK_EMAIL_BACKEND)
+        connection=get_connection(backend=HELPDESK_EMAIL_BACKEND)
     )
     msg.attach_alternative(html_part, "text/html")
 
@@ -128,10 +129,10 @@ def send_templated_mail(
             filefield.close()
 
     logger.debug("Sending email to: {!r} using backend {!r}".format(
-        recipients, email_backend))
+        recipients, HELPDESK_EMAIL_BACKEND))
 
     # Special handling for post_office if needed
-    if email_backend == 'post_office.backend.EmailBackend':
+    if HELPDESK_EMAIL_BACKEND == 'post_office.backend.EmailBackend':
         from post_office import mail
         try:
             email = mail.send(
