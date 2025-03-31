@@ -250,8 +250,8 @@ public_comment_changed=False,
 
 
     helpdesk_user = user if is_helpdesk_staff(user) else None
-    has_private_comment = bool(public_comment)
-    has_public_comment = public_comment and public_comment_changed
+    has_private_comment = bool(private_comment)
+    has_public_comment = bool(public_comment and public_comment_changed)
     f = None
     if comment:
         f = FollowUp.objects.create(ticket=ticket, date=timezone.now(), comment=comment,
@@ -402,6 +402,9 @@ public_comment_changed=False,
 
     # this is where the email gets sent to the submitter
     if has_public_comment:
+        if not f.comment:
+            raise(f"No comment to send to submitter - no email sent")
+
         ticket = update_messages_sent_to_by_public_and_status(
             ticket, public_followup, context, messages_sent_to, files
         )
