@@ -490,3 +490,9 @@ HELPDESK_GET_NEW_TICKET_WEBHOOK_URLS = getattr(
 )
 
 HELPDESK_WEBHOOK_TIMEOUT = getattr(settings, "HELPDESK_WEBHOOK_TIMEOUT", 3)
+
+# the backend of for anymail should work but if using django-post office may need to modify def send
+
+HELPDESK_EMAIL_BACKEND = getattr(settings, "HELPDESK_EMAIL_BACKEND", None)
+if not HELPDESK_EMAIL_BACKEND:
+    HELPDESK_EMAIL_BACKEND = getattr(settings, "EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")

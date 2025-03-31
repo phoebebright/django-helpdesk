@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.mail import get_connection
 from django.utils.safestring import mark_safe
 import logging
 import os
@@ -105,31 +106,79 @@ def send_templated_mail(
             recipients = recipients.split(",")
     elif type(recipients) is not list:
         recipients = [recipients]
+    from django.conf import settings
+    from django.core.mail import EmailMultiAlternatives
+    from smtplib import SMTPException
+    import logging
 
-    msg = EmailMultiAlternatives(
-        subject_part,
-        text_part,
-        sender or settings.DEFAULT_FROM_EMAIL,
-        recipients,
-        bcc=bcc,
-        headers=headers,
-    )
-    msg.attach_alternative(html_part, "text/html")
+    logger = logging.getLogger(__name__)
 
-    if files:
-        for filename, filefield in files:
-            filefield.open("rb")
-            content = filefield.read()
-            msg.attach(filename, content)
-            filefield.close()
-    logger.debug("Sending email to: {!r}".format(recipients))
+    def send_helpdesk_email(subject_part, text_part, html_part, recipients,
+                            sender=None, bcc=None, headers=None, files=None,
+                            fail_silently=False):
+        """Send email using configured HELPDESK_EMAIL_BACKEND"""
+        # Get configured backend
+        email_backend = getattr(settings, "HELPDESK_EMAIL_BACKEND",
+                                getattr(settings, "EMAIL_BACKEND",
+                                        "django.core.mail.backends.smtp.EmailBackend"))
 
-    try:
-        return msg.send()
-    except SMTPException as e:
-        logger.exception(
-            "SMTPException raised while sending email to {}".format(recipients)
+        # Create message
+        msg = EmailMultiAlternatives(
+            subject_part,
+            text_part,
+            sender or settings.DEFAULT_FROM_EMAIL,
+            recipients,
+            bcc=bcc,
+            headers=headers,
+            connection=get_connection(backend=email_backend)
         )
-        if not fail_silently:
-            raise e
-        return 0
+        msg.attach_alternative(html_part, "text/html")
+
+        # Handle attachments
+        if files:
+            for filename, filefield in files:
+                filefield.open("rb")
+                content = filefield.read()
+                msg.attach(filename, content)
+                filefield.close()
+
+        logger.debug("Sending email to: {!r} using backend {!r}".format(
+            recipients, email_backend))
+
+        # Special handling for post_office if needed
+        if email_backend == 'post_office.backend.EmailBackend':
+            from post_office import mail
+            try:
+                email = mail.send(
+                    recipients=recipients,
+                    sender=sender or settings.DEFAULT_FROM_EMAIL,
+                    subject=subject_part,
+                    message=text_part,
+                    html_message=html_part,
+                    headers=headers,
+                    priority='now',
+                    attachments=[
+                        (filename, content, mimetype)
+                        for filename, content, mimetype in (
+                            (f[0], f[1].read(), f[1].content_type)
+                            for f in files or []
+                        )
+                    ] if files else None
+                )
+                return 1 if email else 0
+            except Exception as e:
+                logger.exception("Error sending email via post_office to {}".format(recipients))
+                if not fail_silently:
+                    raise
+                return 0
+        else:
+            # Standard sending for Anymail/SMTP backends
+            try:
+                return msg.send(fail_silently=fail_silently)
+            except SMTPException as e:
+                logger.exception(
+                    "SMTPException raised while sending email to {}".format(recipients)
+                )
+                if not fail_silently:
+                    raise
+                return 0
