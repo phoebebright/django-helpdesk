@@ -69,6 +69,7 @@ Installation
    :width: 60px
    :align: middle
 
+
 Developer Environment
 ---------------------
 
@@ -155,4 +156,3 @@ have their own licenses. See LICENSE.3RDPARTY for license terms for
 included packages.
 
 .. _note: https://docs.djangoproject.com/en/dev/ref/databases/#substring-matching-and-case-sensitivity
-

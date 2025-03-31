@@ -392,6 +392,7 @@ public_comment_changed=False,
         resolution=ticket.resolution,
         comment=f.comment,
     )
+    logger.info(f"context: {context}")
 
     messages_sent_to = set()
     try:
