@@ -128,7 +128,7 @@ def send_templated_mail(
             msg.attach(filename, content)
             filefield.close()
 
-    logger.info(f"Sending email to: {recipients} using backend {HELPDESK_EMAIL_BACKEND} with fail silently={fail_silently}")
+    logger.info(f"Sending email to: {recipients}  from {sender} using backend {HELPDESK_EMAIL_BACKEND} with fail silently={fail_silently}")
 
     # Special handling for post_office if needed
     if HELPDESK_EMAIL_BACKEND == 'post_office.backend.EmailBackend':
